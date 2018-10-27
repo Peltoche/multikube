@@ -18,7 +18,7 @@ type Cmd struct {
 }
 
 // Execute found all the contexts matching the context rules and run the command
-// agains them.
+// against them.
 func Execute(cmd *Cmd) error {
 	// Compose the context list
 	contexts, err := RetrieveAllContexts()

@@ -29,16 +29,30 @@ func RunGUIOutput(outputs []OutputDescription) error {
 	})
 
 	// the SetKeybinding need to be set after SetManagerFunc
-	g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit)
-	g.SetKeybinding("", gocui.KeyCtrlD, gocui.ModNone, quit)
-	g.SetKeybinding("", 'q', gocui.ModNone, quit)
+	err = g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit)
+	if err != nil {
+		return err
+	}
+	err = g.SetKeybinding("", gocui.KeyCtrlD, gocui.ModNone, quit)
+	if err != nil {
+		return err
+	}
+	err = g.SetKeybinding("", 'q', gocui.ModNone, quit)
+	if err != nil {
+		return err
+	}
 
 	for _, output := range outputs {
 		go func(g *gocui.Gui, output OutputDescription) {
 
 			reader := bufio.NewReader(output.In)
 			for {
-				line, prefix, err := reader.ReadLine()
+				var (
+					line   []byte
+					prefix bool
+				)
+
+				line, prefix, err = reader.ReadLine()
 				if err != nil {
 					if err == io.EOF {
 						break
@@ -47,7 +61,9 @@ func RunGUIOutput(outputs []OutputDescription) error {
 				}
 
 				g.Update(func(g *gocui.Gui) error {
-					view, err := g.View(output.Title)
+					var view *gocui.View
+
+					view, err = g.View(output.Title)
 					if err != nil {
 						return err
 					}
